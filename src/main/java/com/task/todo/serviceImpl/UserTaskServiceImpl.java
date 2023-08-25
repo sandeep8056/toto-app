@@ -136,14 +136,20 @@ public class UserTaskServiceImpl implements IUserTaskService {
 	}
 
 	@Override
-	public Page<IUserTaskResponseDto> getUserTaskByUserId(Integer userId, Integer page, Integer size) {
+	public Page<IUserTaskResponseDto> getUserTaskByUserId(Integer userId, Integer page, Integer size,Integer logedId,List<String> permissions) {
 		try {
-
+ 
 			Pageable pageable = PageRequest.of(page, size);
 
-			userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
+			User user =userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
+			
+			
+			if(permissions.contains("IsAdmin")) {
+				Page<IUserTaskResponseDto> userTasks = userTaskRepository.getTaskByUserId(userId, pageable);
+				return userTasks;
+			}
 
-			Page<IUserTaskResponseDto> userTasks = userTaskRepository.getTaskByUserId(userId, pageable);
+			Page<IUserTaskResponseDto> userTasks = userTaskRepository.getTaskByUserId(logedId, pageable);
 			return userTasks;
 		} catch (Exception e) {
 			throw e;
